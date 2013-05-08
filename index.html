@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>JSON.parseMore tests</title>
+	<meta http-equiv=content-type content="text/html; charset=UTF8">
+	<script src=json_parseMore.js></script>
+	<style type="text/css">
+		.ok { color: darkgreen }
+		.fail { color: darkred }
+	</style>
+</head>
+<body>
+	<a href=https://github.com/Canop/JSON.parseMore>JSON.parseMore</a> is a not eval based JSON parser which adds support for the much needed NaN and infinities.
+	<br>Enter some JSON here :
+	<br>
+<textarea id=json style="width:100%;height:300px">{
+"someNumbers":[-1e27,NaN,Infinity,-Infinity,2.2822022,-2.2702775,-2.1864045,-2.1246889,-2.0566146],
+"someObject":{"with":{"a":{"deeper":null}}},
+"someNumber":NaN
+}</textarea>
+	<br><input id=clear type=button value="Clear"><input id=go type=button value="Parse and log the result to the console">
+	<br><span id=res></span>
+<script>
+	var ù = document.getElementById.bind(document);
+	var fun = {
+		"eval": function(json) { return eval('('+json+')') },
+		"JSON.parse" : JSON.parse,
+		"JSON.parseMore" : JSON.parseMore
+	}, NB_TESTS=100;
+	ù('clear').onclick = function(){
+		ù('json').value = '';
+		ù('res').innerHTML = '';
+	};	
+	ù('go').onclick = function(){
+		var json = ù('json').value;
+		if (!json.length) {
+			ù('res').innerHTML = 'Please type some JSON in the textarea, click the button and open the console';
+			return;
+		}
+		ù('res').innerHTML = 'computing...';
+		setTimeout(function(){
+			var results = [];
+			for (var name in fun) {
+				result = '<b>'+name+' :</b>';
+				var parsed = null, timeStart = +new Date();
+				try {
+					for (var i=0; i<NB_TESTS; i++) parsed = fun[name](json);
+					console.log('Parsing with ' + name + ' :', parsed);
+					result += ' took ' + (new Date()-timeStart)/NB_TESTS + ' ms per parsing (did it '+NB_TESTS+' times) <span class=ok>OK</span>';
+				} catch (e) {
+					result += ' Error: <i>'+e+'</i>';
+					console.log('Parsing with ' + name + ' : Error', e);
+				}
+				if (!parsed) {
+					result += ' <span class=fail>FAIL</span>';
+				}
+				results.push(result);
+			}
+			ù('res').innerHTML = results.join('<br>');
+		}, 0);
+	};
+</script>
+</body>
+</html>
