@@ -17,36 +17,36 @@
 		text,
 		error = function (m) {
 			throw {
-				name:	'SyntaxError',
+				name: 'SyntaxError',
 				message: m,
-				at:	  at,
-				text:	text
+				at:	at,
+				text: text
 			};
 		},
 		next = function (c) {
-			if (c && c !== ch) {
+			return ch = text.charAt(at++);
+		},
+		check = function (c) {
+			if (c !== ch) {
 				error("Expected '" + c + "' instead of '" + ch + "'");
 			}
-			ch = text.charAt(at);
-			at += 1;
-			return ch;
+			ch = text.charAt(at++);
 		},
 		number = function () {
-			var number, string = '';
-
+			var string = '';
 			if (ch === '-') {
 				string = '-';
-				next('-');
+				check('-');
 			}
 			if (ch === 'I') {
-				next('I');
-				next('n');
-				next('f');
-				next('i');
-				next('n');
-				next('i');
-				next('t');
-				next('y');
+				check('I');
+				check('n');
+				check('f');
+				check('i');
+				check('n');
+				check('i');
+				check('t');
+				check('y');
 				return -Infinity;
 			}
 			while (ch >= '0' && ch <= '9') {
@@ -71,12 +71,7 @@
 					next();
 				}
 			}
-			number = +string;
-			if (!isFinite(number)) {
-				error("Bad number");
-			} else {
-				return number;
-			}
+			return +string;
 		},
 		string = function () {
 			var hex,
@@ -93,7 +88,7 @@
 						next();
 						if (ch === 'u') {
 							uffff = 0;
-							for (i = 0; i < 4; i += 1) {
+							for (i = 0; i < 4; i ++) {
 								hex = parseInt(next(), 16);
 								if (!isFinite(hex)) {
 									break;
@@ -101,7 +96,7 @@
 								uffff = uffff * 16 + hex;
 							}
 							string += String.fromCharCode(uffff);
-						} else if (typeof escapee[ch] === 'string') {
+						} else if (escapee[ch]) {
 							string += escapee[ch];
 						} else {
 							break;
@@ -121,38 +116,38 @@
 		word = function () {
 			switch (ch) {
 			case 't':
-				next('t');
-				next('r');
-				next('u');
-				next('e');
+				check('t');
+				check('r');
+				check('u');
+				check('e');
 				return true;
 			case 'f':
-				next('f');
-				next('a');
-				next('l');
-				next('s');
-				next('e');
+				check('f');
+				check('a');
+				check('l');
+				check('s');
+				check('e');
 				return false;
 			case 'n':
-				next('n');
-				next('u');
-				next('l');
-				next('l');
+				check('n');
+				check('u');
+				check('l');
+				check('l');
 				return null;
 			case 'N':
-				next('N');
-				next('a');
-				next('N');
+				check('N');
+				check('a');
+				check('N');
 				return NaN;
 			case 'I':
-				next('I');
-				next('n');
-				next('f');
-				next('i');
-				next('n');
-				next('i');
-				next('t');
-				next('y');
+				check('I');
+				check('n');
+				check('f');
+				check('i');
+				check('n');
+				check('i');
+				check('t');
+				check('y');
 				return Infinity;
 			}
 			error("Unexpected '" + ch + "'");
@@ -160,49 +155,48 @@
 		array = function () {
 			var array = [];
 			if (ch === '[') {
-				next('[');
+				check('[');
 				white();
 				if (ch === ']') {
-					next(']');
+					check(']');
 					return array;   // empty array
 				}
 				while (ch) {
 					array.push(value());
 					white();
 					if (ch === ']') {
-						next(']');
+						check(']');
 						return array;
 					}
-					next(',');
+					check(',');
 					white();
 				}
 			}
 			error("Bad array");
 		},
 		object = function () {
-			var key,
-				object = {};
+			var key, object = {};
 			if (ch === '{') {
-				next('{');
+				check('{');
 				white();
 				if (ch === '}') {
-					next('}');
+					check('}');
 					return object;   // empty object
 				}
 				while (ch) {
 					key = string();
 					white();
-					next(':');
+					check(':');
 					if (Object.hasOwnProperty.call(object, key)) {
 						error('Duplicate key "' + key + '"');
 					}
 					object[key] = value();
 					white();
 					if (ch === '}') {
-						next('}');
+						check('}');
 						return object;
 					}
-					next(',');
+					check(',');
 					white();
 				}
 			}

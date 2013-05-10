@@ -26,7 +26,7 @@
 		"eval": function(json) { return eval('('+json+')') },
 		"JSON.parse" : JSON.parse,
 		"JSON.parseMore" : JSON.parseMore
-	}, NB_TESTS=100;
+	}, NB_TESTS_MAX=10000, MAX_TIME=10*1000;
 	ù('clear').onclick = function(){
 		ù('json').value = '';
 		ù('res').innerHTML = '';
@@ -44,11 +44,14 @@
 				result = '<b>'+name+' :</b>';
 				var parsed = null, timeStart = +new Date();
 				try {
-					for (var i=0; i<NB_TESTS; i++) parsed = fun[name](json);
+					for (var i=0; i<NB_TESTS_MAX; i++) {
+						parsed = fun[name](json);
+						if ( !(i%100) && i && (new Date()-timeStart)>MAX_TIME ) break;
+					}
 					console.log('Parsing with ' + name + ' :', parsed);
-					result += ' took ' + (new Date()-timeStart)/NB_TESTS + ' ms per parsing (did it '+NB_TESTS+' times) <span class=ok>OK</span>';
+					result += ' took ' + (new Date()-timeStart)/i + ' ms per parsing (did it '+i+' times) <span class=ok>OK</span>';
 				} catch (e) {
-					result += ' Error: <i>'+e+'</i>';
+					result += ' Error: <i>'+(e.message||e)+'</i>';
 					console.log('Parsing with ' + name + ' : Error', e);
 				}
 				if (!parsed) {
