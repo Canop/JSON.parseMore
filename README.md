@@ -26,4 +26,7 @@ and then parse any JSON string using
     var parsed = JSON.parseMore(json);
 
 
+License
+-------
 
+Public Domain. Use as you wish and at your own risk.
